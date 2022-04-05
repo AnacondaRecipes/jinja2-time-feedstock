@@ -10,40 +10,46 @@ source:
   fn: {{ gh_repo }}-{{ version }}.tar.gz
   url: https://github.com/{{ gh_org }}/{{ gh_repo }}/archive/{{ version }}.tar.gz
   sha256: 0e647e525ba47523fa400a58fdec090b1cc6dcec4afbf095ee01e9e589e5a5ef
+  patches:
+    # remove after https://github.com/hackebrot/jinja2-time/pull/19 (or similar)
+    - 0000-replace-replace-shift.patch
 
 build:
   noarch: python
-  number: 2
+  number: 3
   script: python -m pip install --no-deps --ignore-installed .
 
 requirements:
   host:
+    - m2-patch  # [win]
+    - patch     # [not win]
     - pip
     - python
     - setuptools
+    - wheel
   run:
-    # Using arrow >=0.15.6 causes `test_add_time`, `test_substract_time`, and
-    # `test_offset_with_format` to fail with AttribuetErrors; arrow 0.13.1 is
-    # known to work, and compatibility with arrow 0.14.x is unknown.  We don't
-    # provide arrow=0.14, so we'll leave the pinning at <0.15 until we have
-    # evidence to do otherwise.
-    - arrow <0.15
+    - arrow
     - jinja2
     - python
 
 test:
+  imports:
+    - jinja2_time
   source_files:
-    - .
+    - tests
   requires:
     - freezegun
-    - pytest
-    - python
+    - pip
+    - pytest-cov
   commands:
-    - py.test
+    - pip check
+    - cd tests && pytest -vv --cov jinja2_time --cov-report term-missing:skip-covered --no-cov-on-fail --cov-fail-under 100
 
 about:
   home: https://github.com/{{ gh_org }}/{{ gh_repo }}
   license: MIT
+  license_family: MIT
+  license_file: LICENSE
   summary: Jinja2 Extension for Dates and Times
 
 extra:
