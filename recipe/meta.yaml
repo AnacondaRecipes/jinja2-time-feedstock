@@ -16,13 +16,11 @@ source:
 
 build:
   noarch: python
-  number: 3
+  number: 4
   script: python -m pip install --no-deps --ignore-installed .
 
 requirements:
   host:
-    - m2-patch  # [win]
-    - patch     # [not win]
     - pip
     - python
     - setuptools
